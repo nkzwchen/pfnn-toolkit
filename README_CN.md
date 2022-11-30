@@ -12,11 +12,7 @@
 
 - [快速开始](#快速开始)
 
-- [脚本说明](#脚本说明)
 
-- [模型性能](#模型性能)
-
-- [ModelZoo主页](https://gitee.com/mindspore/models)
 
 ## [描述](#目录)
 
@@ -54,55 +50,9 @@ PFNN根据方程信息和计算区域信息生成训练集和测试集。
 ### 训练过程
 
 ```shell
-bash run_standalone_train_gpu.sh
-python train.py --problem [PROBLEM] --g_epochs [G_EPOCHS] --f_epochs [F_EPOCHS] --g_lr [G_LR] --f_lr [F_LR] --device [DEVICE]
+bash run_diffusion_equation.sh
+python diffusion_equation.py --g_epochs [G_EPOCHS] --f_epochs [F_EPOCHS] --g_lr [G_LR] --f_lr [F_LR] --device [DEVICE]
 ```
 
-### 评估过程
 
-```shell
-bash run_standalone_eval_gpu.sh
-python eval.sh --problem [PROBLEM] --device [DEVICE]
-```
 
-## [脚本说明](#目录)
-
-### 文件描述
-
-```shell
-├── data
-│   ├── data.py                     #根据方程生成数据
-│   ├── dataset.py                  #生成数据集
-│   └── __init__.py
-├── eval.py                         #测试函数
-├── README_CN.md
-├── requirement.txt
-├── scripts
-│   ├── run_standalone_eval_gpu.sh  #测试执行脚本
-│   └── run_standalone_train_gpu.sh #训练执行脚本
-├── src
-│   ├── callback.py
-│   ├── __init__.py
-│   └── model.py                    #网络模型
-└── train.py                        #训练代码
-```
-
-## [模型性能](#目录)
-
-| 参数          | GPU                                                          |
-| ------------- | ------------------------------------------------------------ |
-| 资源          | GPU(Tesla V100 PCI-E), Memory 16G                            |
-| 更新时间      | 2021.10.25                                                   |
-| Mindspore版本 | 1.5.0-rc1                                                    |
-| 数据集        | 根据方程信息和计算区域信息生成                               |
-| 问题          | Anisotropic Diffusion                                        |
-| 输出          | 精度                                                         |
-| 优化器        | Adam                                                         |
-| Speed         | 12.2ms/step                                                   |
-| 精度          | 0.00043                                                      |
-| 训练耗时      | 55s                                                          |
-| Scripts       | [Link](https://gitee.com/mindspore/models/tree/master/research/hpc/pfnn) |
-
-## [ModelZoo主页](#目录)
-
-请浏览官网[主页](https://gitee.com/mindspore/models)
