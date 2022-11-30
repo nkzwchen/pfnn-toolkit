@@ -73,7 +73,7 @@ class SaveCallbackNETLoss(Callback):
         cb_params = run_context.original_args()
         u = (Tensor(self.g, mstype.float32) + Tensor(self.l, mstype.float32)
              * self.net(Tensor(self.x, mstype.float32))).asnumpy()
-        self.tmp_error = (((u - self.ua)**2).sum()/self.ua.sum())**0.5
+        self.tmp_error = (((u - self.ua)**2).sum()/(self.ua ** 2).sum())**0.5
         if self.error > self.tmp_error and cb_params.cur_epoch_num % 100 == 0:
             self.error = self.tmp_error
             save_checkpoint(self.net, self.path)

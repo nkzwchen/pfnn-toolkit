@@ -24,7 +24,7 @@ from data import gendata
 from train import PfnnSolver
 from sympy import symbols
 from equation import LiouvilleBratuEquation, LiouvilleBratuEquationLossNet
-LAMBDA = 0.5
+LAMBDA = 0.3
 def get_equation():
     x1, x2 = symbols("x1 x2")
     u = ((x1 ** 3 - 3 * x1) * (x2 ** 3 - 3 * x2) - 3)

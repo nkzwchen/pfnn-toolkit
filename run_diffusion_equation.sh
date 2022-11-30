@@ -14,4 +14,4 @@
 # limitations under the License.
 # ============================================================================
 #!/bin/bash
-python test.py --g_epochs 6000 --f_epochs 6000 --g_lr 0.01 --f_lr 0.01 --device gpu 
+python diffusion_equation.py --g_epochs 6000 --f_epochs 6000 --g_lr 0.01 --f_lr 0.01 --device gpu 

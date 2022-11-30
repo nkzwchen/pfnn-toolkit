@@ -35,15 +35,16 @@ class DataSetNetLoss():
     """
     Generator Training Dataset to train NetF
     """
-    def __init__(self, x, nx=None):
+    def __init__(self, x, nx=None, has_neumann_boundary=False):
         self.x = x
         self.nx = nx
+        self.has_neumann_boundary = has_neumann_boundary
 
     def __getitem__(self, index):
-        if self.nx != None:
+        if self.has_neumann_boundary:
             return (self.x, self.nx)
         else:
-            return (self.x)
+           return (self.x)
 
     def __len__(self):
         return 1
@@ -61,7 +62,7 @@ def GenerateDataSet(inset, bdset):
     DS_NETG = ds.GeneratorDataset(
         datasetnetg, ["data", "label"], shuffle=False)
     if bdset.has_neumann_boundary:
-        datasetnetloss = DataSetNetLoss(inset.x, bdset.n_x)
+        datasetnetloss = DataSetNetLoss(inset.x, bdset.n_x, has_neumann_boundary=True)
         DS_NETL = ds.GeneratorDataset(
         datasetnetloss, ["x_inset", "x_bdset"], shuffle=False)
     else:

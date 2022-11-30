@@ -121,6 +121,6 @@ class PfnnSolver():
         x = Tensor(self.TeSet.x, mstype.float32)
         TeSet_u = (self.net_g (x) + self.lenfac (Tensor(x)) * self.net_f (x)).asnumpy()
         Teerror = (((TeSet_u - self.TeSet.ua)**2).sum() /
-                (self.TeSet.ua).sum()) ** 0.5
+                (self.TeSet.ua ** 2).sum()) ** 0.5
         return Teerror
 

@@ -1,2 +1,3 @@
 from .function import Function
 from .diffusion_equation import DiffusionEquationLossNet, DiffusionEquation
+from .liouville_bratu_equation import LiouvilleBratuEquation, LiouvilleBratuEquationLossNet

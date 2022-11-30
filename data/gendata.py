@@ -49,7 +49,10 @@ class InnerSet():
                             (j + self.gp_pos[l]) * self.hx[1]
                         m = m + 1
         
-        self.a = equation.A_handle(self.x)
+        if hasattr(equation, 'A_handle'):
+            self.a = equation.A_handle(self.x)
+        else:
+            self.a = None
         self.c = equation.right_handle(self.x)
         self.ua = equation.ground_handle(self.x)
 
@@ -129,20 +132,22 @@ class BoundarySet():
 
         assert d_index.sum() != 0, "Missing dirichlet boundary!"
         self.d_x = x[d_index]
-        self.d_a = equation.A_handle(self.d_x)
+        if hasattr(equation, 'A_handle'):
+            self.d_a = equation.A_handle(self.d_x)
+        else:
+            self.d_a = None
         self.d_r = equation.ground_handle(self.d_x)
-        rate = d_index.sum() / x.shape[0]
-        print(rate)
-        self.d_length = self.length * rate
+        self.d_length = self.length * (d_index.sum() / x.shape[0])
             
         if n_index.sum() != 0:
             self.has_neumann_boundary = True
-            rate = n_index.sum() / x.shape[0]
-            print(rate)
-            self.n_length = self.length * rate
+            self.n_length = self.length * (n_index.sum() / x.shape[0])
             self.n_x = x[n_index]
             self.n_n = n[n_index]
-            self.n_a = equation.A_handle(self.n_x)
+            if hasattr(equation, 'A_handle'):
+                self.n_a = equation.A_handle(self.n_x)
+            else:
+                self.n_a = None
             self.n_r = equation.rn_handle(self.n_x, self.n_n)
             self.n_l = self.lenfac(Tensor(self.n_x, mstype.float32)).asnumpy()
         
