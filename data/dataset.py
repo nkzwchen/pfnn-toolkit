@@ -14,6 +14,8 @@
 # ============================================================================
 """Generate Dataset"""
 import mindspore.dataset as ds
+from mindspore.communication.management import get_rank, get_group_size
+
 
 
 class DataSetNetG():
@@ -58,16 +60,18 @@ def GenerateDataSet(inset, bdset):
         inset: Inner Set
         bdset: Boundary Set
     """
+    rank_id = get_rank()
+    rank_size = get_group_size()
     datasetnetg = DataSetNetG(bdset.d_x, bdset.d_r)
     DS_NETG = ds.GeneratorDataset(
-        datasetnetg, ["data", "label"], shuffle=False)
+        datasetnetg, ["data", "label"], shuffle=False, num_shards=rank_size, shard_id=rank_id)
     if bdset.has_neumann_boundary:
         datasetnetloss = DataSetNetLoss(inset.x, bdset.n_x, has_neumann_boundary=True)
         DS_NETL = ds.GeneratorDataset(
-        datasetnetloss, ["x_inset", "x_bdset"], shuffle=False)
+        datasetnetloss, ["x_inset", "x_bdset"], shuffle=False, num_shards=rank_size, shard_id=rank_id)
     else:
         datasetnetloss = DataSetNetLoss(inset.x)
         DS_NETL = ds.GeneratorDataset(
-        datasetnetloss, ["x_inset"], shuffle=False)
+        datasetnetloss, ["x_inset"], shuffle=False, num_shards=rank_size, shard_id=rank_id)
 
     return DS_NETG, DS_NETL

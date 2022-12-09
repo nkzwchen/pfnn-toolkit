@@ -19,6 +19,7 @@ from mindspore import context, Tensor
 from mindspore import dtype as mstype
 from mindspore import ops
 from mindspore import load_param_into_net, load_checkpoint
+from mindspore.context import ParallelMode
 from mindspore.train.model import Model
 from src import callback
 from data import dataset
@@ -51,6 +52,7 @@ class PfnnSolver():
     def solve(self):
         if self.args.device == "gpu":
             context.set_context(mode=context.GRAPH_MODE, device_target="GPU")
+            context.set_auto_parallel_context(parallel_mode=ParallelMode.DATA_PARALLEL, gradients_mean=True)
         else:
             context.set_context(mode=context.PYNATIVE_MODE, device_target="CPU")
 
@@ -83,7 +85,7 @@ class PfnnSolver():
         print("START TRAIN NEURAL NETWORK G")
         model = Model(network=self.net_g, loss_fn=None, optimizer=self.optim_g)
         model.train(self.g_epochs, self.dataset_g, callbacks=[
-                callback.SaveCallbackNETG(self.net_g, self.g_path)])
+                callback.SaveCallbackNETG(self.net_g, self.g_path)], dataset_sink_mode=True)
     
     def _train_f(self):
 
@@ -95,7 +97,7 @@ class PfnnSolver():
         model = Model(network=self.loss_net_f,
                     loss_fn=None, optimizer=self.optim_f)
         model.train(self.f_epochs, self.dataset_f, callbacks=[callback.SaveCallbackNETLoss(
-            self.net_f, self.f_path, self.InSet.x, self.InSet.l, g_func_val[0], self.InSet.ua)])
+            self.net_f, self.f_path, self.InSet.x, self.InSet.l, g_func_val[0], self.InSet.ua)], dataset_sink_mode=True)
     
     def _get_func_val(self):
         grad_ = ops.composite.GradOperation(get_all=True)
