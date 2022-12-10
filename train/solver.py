@@ -15,10 +15,10 @@
 """Run PFNN"""
 import time
 
+from mpi4py import MPI
 from mindspore import context, Tensor
 from mindspore import dtype as mstype
 from mindspore import ops
-from mindspore import load_param_into_net, load_checkpoint
 from mindspore.context import ParallelMode
 from mindspore.train.model import Model
 from src import callback
@@ -55,34 +55,35 @@ class PfnnSolver():
             context.set_auto_parallel_context(parallel_mode=ParallelMode.DATA_PARALLEL, gradients_mean=True)
         else:
             context.set_context(mode=context.PYNATIVE_MODE, device_target="CPU")
-
-        print("START TRAINING")
+        comm = MPI.COMM_WORLD
+        rank = comm.get_rank()
+        if rank == 0:
+            print("START TRAINING")
         start_gnet_time = time.time()
         self._train_g()
         elapsed_gnet = time.time() - start_gnet_time
         start_fnet_time = time.time()
         self._train_f()
         elapsed_fnet = time.time() - start_fnet_time
-        print("Train NetG total time: %.2f, train NetG one step time: %.5f" %
-            (elapsed_gnet, elapsed_gnet/self.g_epochs))
-        print("Train NetF total time: %.2f, train NetF one step time: %.5f" %
-                (elapsed_fnet, elapsed_fnet/self.f_epochs))
+        if rank == 0:
+            print("Train NetG total time: %.2f, train NetG one step time: %.5f" %
+                (elapsed_gnet, elapsed_gnet/self.g_epochs))
+            print("Train NetF total time: %.2f, train NetF one step time: %.5f" %
+                    (elapsed_fnet, elapsed_fnet/self.f_epochs))
 
         errors = self._calerror()
-        print("test_error = %.3e\n" % (errors.item()))
-
-        print(errors)
-        errors_mean = errors.mean()
-        errors_std = errors.std()
-
-        print("test_error_mean = %.3e, test_error_std = %.3e"
-            % (errors_mean.item(), errors_std.item()))
+        errors = comm.reduce(errors.item(), root=0, op=MPI.SUM)
+        if rank == 0:        
+            print("test_error = %.3e\n" % (errors.item()))
     
     def _train_g(self):
         """
         The process of preprocess and process to train NetG
         """
-        print("START TRAIN NEURAL NETWORK G")
+        comm = MPI.COMM_WORLD
+        rank = comm.get_rank()
+        if rank == 0:
+            print("START TRAIN NEURAL NETWORK G")
         model = Model(network=self.net_g, loss_fn=None, optimizer=self.optim_g)
         model.train(self.g_epochs, self.dataset_g, callbacks=[
                 callback.SaveCallbackNETG(self.net_g, self.g_path)], dataset_sink_mode=True)
