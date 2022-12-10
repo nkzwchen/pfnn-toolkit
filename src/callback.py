@@ -13,6 +13,7 @@
 # limitations under the License.
 # ============================================================================
 """Train NetG and NetF/NetLoss"""
+import sys
 from mpi4py import MPI
 from mindspore.communication.management import get_rank
 from mindspore.train.callback import Callback
@@ -38,11 +39,13 @@ class SaveCallbackNETG(Callback):
 
     def step_end(self, run_context):
         """print info and save checkpoint per 100 steps"""
+        cb_params = run_context.original_args()
         if cb_params.cur_epoch_num % 100 == 0:          
-            cb_params = run_context.original_args()
             comm = MPI.COMM_WORLD
-            loss = comm.reduce(cb_params.net_outputs, root=0, op=MPI.SUM)
-            rank = comm.get_rank()
+            loss = cb_params.net_outputs.asnumpy()
+            loss = loss.sum()
+            loss = comm.reduce(loss.item(), root=0)
+            rank = comm.Get_rank()
             if rank == 0:
                 self.print(
                     f"NETG epoch : {cb_params.cur_epoch_num}, loss : {loss}")
@@ -72,9 +75,8 @@ class SaveCallbackNETLoss(Callback):
 
     def step_end(self, run_context):
         """print info and save checkpoint per 100 steps"""
-
+        cb_params = run_context.original_args()
         if cb_params.cur_epoch_num % 100 == 0:
-            cb_params = run_context.original_args()
             u = (Tensor(self.g, mstype.float32) + Tensor(self.l, mstype.float32)
                 * self.net(Tensor(self.x, mstype.float32))).asnumpy()
             ground = (self.ua ** 2).sum()
@@ -82,7 +84,7 @@ class SaveCallbackNETLoss(Callback):
             comm = MPI.COMM_WORLD
             ground = comm.reduce(ground, root=0, op=MPI.SUM)
             error = comm.reduce(error, root=0, op=MPI.SUM)
-            loss = comm.reduce(cb_params.net_outputs, root=0, op=MPI.SUM)
+            loss = comm.reduce(cb_params.net_outputs.asnumpy().sum().item(), root=0, op=MPI.SUM)
             rank = comm.Get_rank()
             if rank == 0:
                 error = ((error)/(ground + 1e-8))**0.5

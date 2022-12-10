@@ -56,7 +56,7 @@ class PfnnSolver():
         else:
             context.set_context(mode=context.PYNATIVE_MODE, device_target="CPU")
         comm = MPI.COMM_WORLD
-        rank = comm.get_rank()
+        rank = comm.Get_rank()
         if rank == 0:
             print("START TRAINING")
         start_gnet_time = time.time()
@@ -74,14 +74,14 @@ class PfnnSolver():
         errors = self._calerror()
         errors = comm.reduce(errors.item(), root=0, op=MPI.SUM)
         if rank == 0:        
-            print("test_error = %.3e\n" % (errors.item()))
+            print("test_error = %.3e\n" % (errors))
     
     def _train_g(self):
         """
         The process of preprocess and process to train NetG
         """
         comm = MPI.COMM_WORLD
-        rank = comm.get_rank()
+        rank = comm.Get_rank()
         if rank == 0:
             print("START TRAIN NEURAL NETWORK G")
         model = Model(network=self.net_g, loss_fn=None, optimizer=self.optim_g)
