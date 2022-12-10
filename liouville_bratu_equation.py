@@ -24,6 +24,12 @@ from data import gendata
 from train import PfnnSolver
 from sympy import symbols
 from equation import LiouvilleBratuEquation, LiouvilleBratuEquationLossNet
+from mindspore.communication.management import init, get_rank
+from mindspore import context
+context.set_context(mode=context.GRAPH_MODE, device_target="GPU")
+init('nccl')
+device_id = int(get_rank())
+context.set_context(device_id=device_id)
 LAMBDA = 0.3
 def get_equation():
     x1, x2 = symbols("x1 x2")
