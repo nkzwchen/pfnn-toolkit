@@ -26,7 +26,7 @@ from equation import DiffusionEquation, DiffusionEquationLossNet
 from mindspore.communication.management import init, get_rank
 from mindspore import context
 
-context.set_context(mode=context.GRAPH_MODE, device_target="GPUs")
+context.set_context(mode=context.GRAPH_MODE, device_target="GPU")
 init('nccl')
 device_id = int(get_rank())
 context.set_context(device_id=device_id) # set device_id

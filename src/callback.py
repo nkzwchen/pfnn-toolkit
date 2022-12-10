@@ -40,7 +40,7 @@ class SaveCallbackNETG(Callback):
         cb_params = run_context.original_args()
         if bool(cb_params.net_outputs < self.loss) and cb_params.cur_epoch_num % 100 == 0:
             self.loss = cb_params.net_outputs
-            save_checkpoint(self.net, self.path)
+           # save_checkpoint(self.net, self.path)
         if cb_params.cur_epoch_num % 100 == 0:
             self.print(
                 f"NETG epoch : {cb_params.cur_epoch_num}, loss : {cb_params.net_outputs}")
@@ -76,7 +76,7 @@ class SaveCallbackNETLoss(Callback):
         self.tmp_error = (((u - self.ua)**2).sum()/(self.ua ** 2).sum())**0.5
         if self.error > self.tmp_error and cb_params.cur_epoch_num % 100 == 0:
             self.error = self.tmp_error
-            save_checkpoint(self.net, self.path)
+           # save_checkpoint(self.net, self.path)
         self.loss = cb_params.net_outputs
         if cb_params.cur_epoch_num % 100 == 0:
             self.print(

@@ -51,7 +51,7 @@ class PfnnSolver():
 
     def solve(self):
         if self.args.device == "gpu":
-            context.set_context(mode=context.GRAPH_MODE, device_target="GPU")
+           # context.set_context(mode=context.GRAPH_MODE, device_target="GPU")
             context.set_auto_parallel_context(parallel_mode=ParallelMode.DATA_PARALLEL, gradients_mean=True)
         else:
             context.set_context(mode=context.PYNATIVE_MODE, device_target="CPU")
