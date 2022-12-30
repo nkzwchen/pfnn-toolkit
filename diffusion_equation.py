@@ -1,17 +1,3 @@
-# Copyright 2021 Huawei Technologies Co., Ltd
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ============================================================================
 """Run PFNN"""
 import argparse
 import os
@@ -25,11 +11,6 @@ from sympy import symbols, ln
 from equation import DiffusionEquation, DiffusionEquationLossNet
 from mindspore.communication.management import init, get_rank
 from mindspore import context
-
-context.set_context(mode=context.GRAPH_MODE, device_target="GPU")
-init('nccl')
-device_id = int(get_rank())
-context.set_context(device_id=device_id) # set device_id
 
 def get_equation():
     x1, x2 = symbols("x1 x2")
@@ -62,9 +43,8 @@ def ArgParse():
                         help="learning rate to train neural network g")
     parser.add_argument("--f_lr", type=float, default=0.01,
                         help="learning rate to train neural network f")
-    parser.add_argument("--device", type=str, default="gpu", choices=["cpu", "gpu"],
-                        help="use cpu or gpu to train")
-
+    parser.add_argument("--parallel_mode", type=str, default="SINGLE", choices=["SINGLE", "DATA_PARALLEL", "AUTO_PARALLEL"],
+                        help="parallel mode to train model")
     parser.add_argument("--path", type=str, default="./optimal_state/",
                         help="the basic folder of g_path and f_path")
     parser.add_argument("--g_path", type=str, default="optimal_state_g_pfnn.ckpt",
@@ -82,6 +62,12 @@ def dirichlet_filter(x):
 
 if __name__ == "__main__":
     args = ArgParse()
+    
+    context.set_context(mode=context.GRAPH_MODE, device_target="GPU")
+    init('nccl')
+    device_id = int(get_rank())
+    context.set_context(device_id=device_id) # set device_id
+    
     equation = get_equation()
 
     errors = None
@@ -99,8 +85,10 @@ if __name__ == "__main__":
     netg = pfnnmodel.NetG()
     netf = pfnnmodel.NetF()
     loss_net_f = DiffusionEquationLossNet(netf)
+    
     optimg = nn.Adam(netg.trainable_params(), learning_rate=args.g_lr)
     optimf = nn.Adam(netf.trainable_params(), learning_rate=args.f_lr)
+    
     solver = PfnnSolver(args = args,
                         InSet = InSet,
                         BdSet = BdSet,
