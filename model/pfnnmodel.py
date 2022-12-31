@@ -3,13 +3,10 @@ Define the network of PFNN
 A penalty-free neural network method for solving a class of
 second-order boundary-value problems on complex geometries
 """
-import mindspore
 from mindspore import Tensor, Parameter
 from mindspore import dtype as mstype
 from mindspore import nn, ops
 from mindspore.common.initializer import Normal
-import numpy as np
-
 
 class LenFac(nn.Cell):
     """
