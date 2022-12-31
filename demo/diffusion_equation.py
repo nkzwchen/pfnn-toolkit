@@ -1,4 +1,4 @@
-"""Run PFNN to solve diffusion equation"""
+"""PFNN solve diffusion equation demo"""
 
 from mindspore import Tensor
 from mindspore import dtype as mstype
