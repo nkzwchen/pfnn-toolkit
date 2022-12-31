@@ -21,7 +21,7 @@ from mindspore import dtype as mstype
 from mindspore import ops
 from mindspore.context import ParallelMode
 from mindspore.train.model import Model
-from src import callback
+from model import callback
 from data import dataset
 
 class PfnnSolver():

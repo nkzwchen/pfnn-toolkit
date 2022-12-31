@@ -25,8 +25,7 @@ def ArgParse():
                         help="learning rate to train neural network g")
     parser.add_argument("--f_lr", type=float, default=0.01,
                         help="learning rate to train neural network f")
-    parser.add_argument("--parallel_mode", type=str, default="SINGLE", choices=["SINGLE", "DATA_PARALLEL", "AUTO_PARALLEL"],
-                        help="parallel mode to train model")
+    parser.add_argument("--parallel_mode", type=str, default="SINGLE", choices=["SINGLE", "DATA_PARALLEL"], help="parallel mode to train model")
     parser.add_argument("--path", type=str, default="./optimal_state/",
                         help="the basic folder of g_path and f_path")
     parser.add_argument("--g_path", type=str, default="optimal_state_g_pfnn.ckpt",
@@ -43,8 +42,6 @@ def environment_init(args: argparse.ArgumentParser):
     if args.parallel_mode == "DATA_PARELLEL":
         # context.set_context(mode=context.GRAPH_MODE, device_target="GPU")
         context.set_auto_parallel_context(parallel_mode=ParallelMode.DATA_PARALLEL, gradients_mean=True)
-    elif args.parallel_mode == "AUTO_PARALLEL":
-       context.set_auto_parallel_context(parallel_mode=ParallelMode.AUTO_PARALLEL, gradients_mean=True)
        
     init('nccl')
     device_id = int(get_rank())
