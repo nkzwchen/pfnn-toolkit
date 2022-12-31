@@ -6,6 +6,7 @@ from mindspore.train.callback import Callback
 from mindspore import ops
 from mindspore import Tensor
 from mindspore import dtype as mstype
+from mindspore import save_checkpoint
 
 
 class SaveCallbackNETG(Callback):
@@ -22,7 +23,7 @@ class SaveCallbackNETG(Callback):
         self.net = net
         self.path = path
         self.print = ops.Print()
-
+        self.print("{self.path}")
     def step_end(self, run_context):
         """print info and save checkpoint per 100 steps"""
         cb_params = run_context.original_args()
@@ -33,6 +34,7 @@ class SaveCallbackNETG(Callback):
             loss = comm.reduce(loss.item(), root=0)
             rank = comm.Get_rank()
             if rank == 0:
+                save_checkpoint(self.net, self.path)
                 self.print(
                     f"NETG epoch : {cb_params.cur_epoch_num}, loss : {loss}")
 

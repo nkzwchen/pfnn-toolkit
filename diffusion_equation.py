@@ -11,6 +11,7 @@ from sympy import symbols, ln
 from equation import DiffusionEquation, DiffusionEquationLossNet
 from mindspore.communication.management import init, get_rank
 from mindspore import context
+from mindspore.context import ParallelMode
 
 def get_equation():
     x1, x2 = symbols("x1 x2")
@@ -64,6 +65,8 @@ if __name__ == "__main__":
     args = ArgParse()
     
     context.set_context(mode=context.GRAPH_MODE, device_target="GPU")
+    if args.parallel_mode == "AUTO_PARALLEL":
+       context.set_auto_parallel_context(parallel_mode=ParallelMode.AUTO_PARALLEL, gradients_mean=True)
     init('nccl')
     device_id = int(get_rank())
     context.set_context(device_id=device_id) # set device_id
