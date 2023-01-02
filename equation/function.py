@@ -1,8 +1,8 @@
-import sympy 
+import sympy
 import numpy as np
 
-class Function(object):
 
+class Function(object):
     def __init__(self, input: list, output: list):
         self._has_lambdified = False
         self.input = input

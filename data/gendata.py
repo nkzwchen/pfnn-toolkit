@@ -4,6 +4,7 @@ from mindspore import Tensor
 from mindspore import dtype as mstype
 from mindspore import ops
 
+
 class InnerSet():
     """Inner Set"""
     def __init__(self, bounds, nx, lenfac, equation):
@@ -34,7 +35,7 @@ class InnerSet():
                         self.x[m, 1] = self.bounds[1, 0] + \
                             (j + self.gp_pos[l]) * self.hx[1]
                         m = m + 1
-        
+
         if hasattr(equation, 'A_handle'):
             self.a = equation.A_handle(self.x)
         else:
@@ -45,9 +46,7 @@ class InnerSet():
         grad_ = ops.composite.GradOperation(get_all=True)
 
         self.l = self.lenfac(Tensor(self.x, mstype.float32)).asnumpy()
-        self.lx = grad_(self.lenfac)(Tensor(self.x, mstype.float32))[
-        0].asnumpy()
-
+        self.lx = grad_(self.lenfac)(Tensor(self.x, mstype.float32))[0].asnumpy()
 
 
 class BoundarySet():
@@ -87,7 +86,7 @@ class BoundarySet():
                 n[m, 0] = -1.0
                 n[m, 1] = 0.0
                 m = m + 1
- 
+
         for i in range(self.nx[0]):
             for k in range(self.gp_num):
                 x[m, 0] = self.bounds[0, 0] + \
@@ -124,7 +123,7 @@ class BoundarySet():
             self.d_a = None
         self.d_r = equation.ground_handle(self.d_x)
         self.d_length = self.length * (d_index.sum() / x.shape[0])
-            
+
         if n_index.sum() != 0:
             self.has_neumann_boundary = True
             self.n_length = self.length * (n_index.sum() / x.shape[0])
@@ -136,7 +135,7 @@ class BoundarySet():
                 self.n_a = None
             self.n_r = equation.rn_handle(self.n_x, self.n_n)
             self.n_l = self.lenfac(Tensor(self.n_x, mstype.float32)).asnumpy()
-        
+
 
 class TestSet():
     """Test Set"""
@@ -155,7 +154,7 @@ class TestSet():
                 self.x[m, 0] = self.bounds[0, 0] + i * self.hx[0]
                 self.x[m, 1] = self.bounds[1, 0] + j * self.hx[1]
                 m = m + 1
-        
+
         self.ua = equation.ground_handle(self.x)
 
 
@@ -167,4 +166,3 @@ def GenerateSet(args, lenfac, equation, dirichlet_filter, neumann_filter):
     return InnerSet(bound, args.inset_nx, lenfac, equation),\
         BoundarySet(bound, args.bdset_nx, lenfac, equation, dirichlet_filter, neumann_filter), \
         TestSet(bound, args.teset_nx, equation)
-

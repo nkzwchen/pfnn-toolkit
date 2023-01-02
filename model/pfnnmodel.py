@@ -8,6 +8,7 @@ from mindspore import dtype as mstype
 from mindspore import nn, ops
 from mindspore.common.initializer import Normal
 
+
 class LenFac(nn.Cell):
     """
     Caclulate the length
@@ -27,13 +28,13 @@ class LenFac(nn.Cell):
 
         l_list = []
         if 'x_inf' in self.dirichlet_sides:
-            l_list.append(1.0 - (1.0 - (x[..., 0:1] - self.bounds[0, 0]) / self.hx) ** self.mu)
+            l_list.append(1.0 - (1.0 - (x[..., 0:1] - self.bounds[0, 0]) / self.hx)**self.mu)
         if 'y_inf' in self.dirichlet_sides:
-            l_list.append(1.0 - (1.0 - (x[..., 1:2] - self.bounds[1, 0]) / self.hx) ** self.mu)
+            l_list.append(1.0 - (1.0 - (x[..., 1:2] - self.bounds[1, 0]) / self.hx)**self.mu)
         if 'x_sup' in self.dirichlet_sides:
-            l_list.append(1.0 - (1.0 - (self.bounds[0, 1] - x[..., 0:1]) / self.hx) ** self.mu)
+            l_list.append(1.0 - (1.0 - (self.bounds[0, 1] - x[..., 0:1]) / self.hx)**self.mu)
         if 'y_sup' in self.dirichlet_sides:
-            l_list.append(1.0 - (1.0 - (self.bounds[1, 1] - x[..., 1:2]) / self.hx) ** self.mu)
+            l_list.append(1.0 - (1.0 - (self.bounds[1, 1] - x[..., 1:2]) / self.hx)**self.mu)
         ret = None
         for l in l_list:
             if ret == None:
@@ -44,7 +45,7 @@ class LenFac(nn.Cell):
 
     def construct(self, x):
         """forward"""
-        return self.cal_l(x) 
+        return self.cal_l(x)
 
 
 class NetG(nn.Cell):
@@ -52,12 +53,9 @@ class NetG(nn.Cell):
     def __init__(self):
         super(NetG, self).__init__()
         self.sin = ops.Sin()
-        self.fc0 = nn.Dense(2, 10, weight_init=Normal(0.2),
-                            bias_init=Normal(0.2))
-        self.fc1 = nn.Dense(10, 10, weight_init=Normal(0.2),
-                            bias_init=Normal(0.2))
-        self.fc2 = nn.Dense(10, 1, weight_init=Normal(0.2),
-                            bias_init=Normal(0.2))
+        self.fc0 = nn.Dense(2, 10, weight_init=Normal(0.2), bias_init=Normal(0.2))
+        self.fc1 = nn.Dense(10, 10, weight_init=Normal(0.2), bias_init=Normal(0.2))
+        self.fc2 = nn.Dense(10, 1, weight_init=Normal(0.2), bias_init=Normal(0.2))
         self.w_tensor = Tensor([[1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0, 0]], mstype.float32)
         self.w = Parameter(self.w_tensor, name="w", requires_grad=False)
         self.matmul = nn.MatMul()
@@ -86,21 +84,14 @@ class NetF(nn.Cell):
     def __init__(self):
         super(NetF, self).__init__()
         self.sin = ops.Sin()
-        self.fc0 = nn.Dense(2, 10, weight_init=Normal(0.2),
-                            bias_init=Normal(0.2))
-        self.fc1 = nn.Dense(10, 10, weight_init=Normal(0.2),
-                            bias_init=Normal(0.2))
-        self.fc2 = nn.Dense(10, 10, weight_init=Normal(0.2),
-                            bias_init=Normal(0.2))
-        self.fc3 = nn.Dense(10, 10, weight_init=Normal(0.2),
-                            bias_init=Normal(0.2))
-        self.fc4 = nn.Dense(10, 10, weight_init=Normal(0.2),
-                            bias_init=Normal(0.2))
-        self.fc5 = nn.Dense(10, 10, weight_init=Normal(0.2),
-                            bias_init=Normal(0.2))
-        self.fc6 = nn.Dense(10, 1, weight_init=Normal(0.2),
-                            bias_init=Normal(0.2))
-                             
+        self.fc0 = nn.Dense(2, 10, weight_init=Normal(0.2), bias_init=Normal(0.2))
+        self.fc1 = nn.Dense(10, 10, weight_init=Normal(0.2), bias_init=Normal(0.2))
+        self.fc2 = nn.Dense(10, 10, weight_init=Normal(0.2), bias_init=Normal(0.2))
+        self.fc3 = nn.Dense(10, 10, weight_init=Normal(0.2), bias_init=Normal(0.2))
+        self.fc4 = nn.Dense(10, 10, weight_init=Normal(0.2), bias_init=Normal(0.2))
+        self.fc5 = nn.Dense(10, 10, weight_init=Normal(0.2), bias_init=Normal(0.2))
+        self.fc6 = nn.Dense(10, 1, weight_init=Normal(0.2), bias_init=Normal(0.2))
+
         self.w_tensor = Tensor([[1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0, 0, 0, 0]], mstype.float32)
         self.w = Parameter(self.w_tensor, name="w", requires_grad=False)
         self.matmul = nn.MatMul()
@@ -115,5 +106,3 @@ class NetF(nn.Cell):
         h = self.sin(self.fc4(x))
         x = self.sin(self.fc5(h)) + x
         return self.fc6(x)
-
-
